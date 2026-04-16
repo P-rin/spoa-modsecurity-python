@@ -1,4 +1,4 @@
-FROM debian:10-slim as build
+FROM debian:12-slim as build
 
 RUN apt-get update \
     && apt-get -y dist-upgrade \
@@ -10,7 +10,8 @@ RUN apt-get update \
     g++ \
     git \
     libcurl4-gnutls-dev \
-    libgeoip-dev \
+    libmaxminddb-dev \
+    libmaxminddb0 \
     liblua5.3-dev \
     libpcre++-dev \
     libtool \
@@ -33,7 +34,7 @@ RUN apt-get update \
 COPY build-modsecurity.sh /tmp/
 RUN chmod +x /tmp/build-modsecurity.sh && /tmp/build-modsecurity.sh
 
-FROM debian:10-slim as runtime-image
+FROM debian:12-slim as runtime-image
 RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get install -y --no-install-recommends \
@@ -44,17 +45,18 @@ RUN apt-get update \
     libcurl3-gnutls \
     libxml2 \
     liblua5.3-0 \
-    libgeoip1 \
-    libpython3.7 \
+    libmaxminddb0 \
+    libpython3.12 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/app/bin:$PATH" \
     RULES=/app/block-localhost.conf
 COPY --from=build /usr/lib/libmodsecurity.so /usr/lib/
-COPY --from=build /app/modsecurity/lib/python3.7/* /usr/local/lib/python3.7/dist-packages/
+COPY --from=build /app/modsecurity/lib/python3.11/* /usr/local/lib/python3.11/dist-packages/
 COPY --from=build /app/spoa /usr/bin/
 COPY rules/block-localhost.conf modsecurity.py /app/
+COPY check_geoip.py /app/
 
 RUN /sbin/ldconfig
 

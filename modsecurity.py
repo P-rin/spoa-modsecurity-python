@@ -220,7 +220,7 @@ def modsecurity(args):
 
     print(f'Time taken: {time.perf_counter() - start_transaction:0.4f}s')
 
-    del(transaction)
+    del transaction
     spoa.set_var_int32("intervention", spoa.scope_sess, response)
 
 

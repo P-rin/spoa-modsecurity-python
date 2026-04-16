@@ -14,7 +14,7 @@ wget --quiet https://github.com/ssdeep-project/ssdeep/releases/download/release-
  && make install
 
 cd ${WORKDIR}
-git clone https://github.com/SpiderLabs/ModSecurity --branch v3.0.4 --depth 1 \
+git clone https://github.com/SpiderLabs/ModSecurity --branch v3.0.8 --depth 1 \
  && cd ModSecurity \
  && ./build.sh \
  && git submodule init \
@@ -26,14 +26,15 @@ git clone https://github.com/SpiderLabs/ModSecurity --branch v3.0.4 --depth 1 \
 cd ${WORKDIR}
 python3 -m venv /app/modsecurity && source /app/modsecurity/bin/activate
 export PATH="/app/bin:$PATH"
-pip3 install pybind11 setuptools \
- && git clone https://github.com/pymodsecurity/pymodsecurity \
+pip3 install 'pybind11>=2.11.0' setuptools \
+ && pip3 install 'geoip2>=4.7.0' \
+ && git clone https://github.com/pymodsecurity/pymodsecurity --branch v1.0.3 --depth 1 \
  && cd pymodsecurity \
- && python3 setup.py install
+ && pip3 install .
 
 cd ${WORKDIR}
-export HAPROXY_MAJOR=2.3
-export HAPROXY_VERSION=2.3.0
+export HAPROXY_MAJOR=2.8
+export HAPROXY_VERSION=2.8.6
 curl -fsSLo haproxy.tar.gz https://www.haproxy.org/download/${HAPROXY_MAJOR}/src/haproxy-${HAPROXY_VERSION}.tar.gz \
  && mkdir -p ${WORKDIR}/haproxy \
  && tar xzf haproxy.tar.gz -C ${WORKDIR}/haproxy --strip-components=1 \
